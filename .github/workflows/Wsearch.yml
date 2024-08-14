@@ -4,12 +4,12 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "**.rs"
+      - "**/*.rs"
       - "**/Cargo.toml"
       - ".github/workflows/test_behavior.yml"
   pull_request:
     paths:
-      - "**.rs"
+      - "**/*.rs"
       - "**/Cargo.toml"
       - ".github/workflows/test_behavior.yml"
 
@@ -18,11 +18,20 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - name: check Windows Search status
+        run: |
+          Get-Service -Name "wsearch"
 
       - name: enable Windows Search
+        if: ${{ steps.check-windows-search.outputs.status != 'Running' }}
         run: |
           Start-Service -Name "wsearch"
+        
       - name: cargo test
-        run: |
-          cargo test --test behavior --all-features
+        run: cargo test --test behavior --all-features
