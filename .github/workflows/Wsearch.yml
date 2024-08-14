@@ -23,15 +23,6 @@ jobs:
           profile: minimal
           toolchain: stable
           override: true
-
-      - name: check Windows Search status
-        run: |
-          Get-Service -Name "wsearch"
-
-      - name: enable Windows Search
-        if: ${{ steps.check-windows-search.outputs.status != 'Running' }}
-        run: |
-          Start-Service -Name "wsearch"
         
       - name: cargo test
         run: cargo test --test behavior --all-features
